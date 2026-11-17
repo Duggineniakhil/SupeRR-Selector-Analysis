@@ -1,0 +1,54 @@
+# Central configuration for the SupeRR Selector pipeline.
+# Every threshold / rule used by the code lives here (see planning/07_Execution_Roadmap.md).
+
+paths:
+  raw: "Data Pack"            # relative to project root; read-only
+  interim: "data_interim"     # local-only parquet (never share / commit)
+  outputs: "outputs"
+
+reference_date: "2026-11-01"  # last match date in the pack; recency anchor
+
+# ---- Delivery semantics (validated in planning/02 §3.6) ----
+extras:
+  wide: ["wide"]
+  noball: ["Overstep", "other"]   # 'other' behaves as a no-ball (adds a ball to the over)
+  non_delivery: ["Penalty"]       # penalty runs: not a delivery
+bowler_wicket_types: ["Bowled", "Caught", "LBW", "Stump", "Hit Wicket"]
+batter_dismissal_exclude: ["Retire Out"]          # tactical retirement is not a batting failure
+dismissal_type_fixes:
+  "Obstracting the field": "Obstructing the field"
+
+spin_bowling_types:
+  - "Right-arm Leg-Break"
+  - "Right-arm offbreak"
+  - "Slow left-arm orthodox"
+  - "Left-arm Chinaman"
+
+phases:            # by over number (1-based), 20-over innings
+  powerplay: [1, 6]
+  middle: [7, 15]
+  death: [16, 20]
+
+default_ball_limit: 120
+super_over_ball_limit: 6
+collapse_window_legal_balls: 18
+
+# ---- Competition tiers (planning/04 §6; decision D3) ----
+tiers:
+  ipl_name_prefix: "IPL "
+  a_team_comp_ids: [2670, 3289]   # Emerging Teams Asia Cup 2024, Asia Cup Rising Stars 2025
+  top_full_members:               # T2 = T20I where BOTH teams are in this list
+    - Afghanistan
+    - Australia
+    - Bangladesh
+    - England
+    - India
+    - New Zealand
+    - Pakistan
+    - South Africa
+    - Sri Lanka
+    - West Indies
+
+# ---- Eligibility (decision D2) ----
+eligibility:
+  active_since: "2025-01-01"

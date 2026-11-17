@@ -1,0 +1,6 @@
+# Competition-confidential data: never commit or publish
+Data Pack/
+__MACOSX/
+data_interim/
+*.parquet
+__pycache__/
