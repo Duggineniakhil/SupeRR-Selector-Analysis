@@ -18,3 +18,18 @@ def path(cfg: dict, key: str) -> Path:
     if key != "raw":
         p.mkdir(parents=True, exist_ok=True)
     return p
+
+
+def md_table(df, index: bool = True, floatfmt: str = "{:.2f}") -> str:
+    """Minimal DataFrame → GitHub markdown table (avoids the tabulate dependency)."""
+    import pandas as pd
+
+    d = df.reset_index() if index else df
+    def fmt(v):
+        if isinstance(v, float):
+            return "" if pd.isna(v) else floatfmt.format(v)
+        return str(v)
+    cols = [str(c) for c in d.columns]
+    lines = ["| " + " | ".join(cols) + " |", "|" + "---|" * len(cols)]
+    lines += ["| " + " | ".join(fmt(v) for v in row) + " |" for row in d.itertuples(index=False)]
+    return "\n".join(lines)

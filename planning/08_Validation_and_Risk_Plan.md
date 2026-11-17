@@ -21,6 +21,7 @@
 | R15 | **Metric multiplicity / cherry-picking** | Many splits (S1–S6, pace vs spin) | Med / Med | Core score uses only the pre-declared components; splits are descriptive | Pre-stated in config |
 | R16 | **Data errors in the pack** | Duplicate playing-XI rows, extras semantics, DLS | Low / Med | Validation invariants (`07 T3`); manual scorecard spot-checks | ≥ 99% totals reconciliation |
 | R18 | **Ranked player not selectable on Unstop** | The final lists include someone missing from the dropdown | Med / High | Task T0: verify the pool from the actual form; never assume it (D4) | Every pick matched to a dropdown entry |
+| R19 | **WP model limits (found in T6)** | First-innings WP is mildly overconfident in its top decile (predicts 0.80, observed 0.75). The model has no team-strength, venue or toss terms. ERR wicket values are coarse where the 9- and 10-wicket curves merge. | Med / Low–Med | First-innings pressure is already treated as less certain (`03 §9`). Run a sensitivity check with chase-only leverage (S-K). Disclose. | Report calibration plots |
 | R17 | **Confidentiality breach** | Raw data exposed | Low / High | No public repo or dashboard; aggregates only in the report | Final QA checklist |
 
 ## 2. Validation procedures
@@ -56,6 +57,7 @@ A clean rerun from raw CSVs with fixed seeds reproduces identical rankings. The 
 | S-G Shrinkage | Weaker prior (τ² × 2); none (raw, eligibility only) |
 | S-H Eligibility | Thresholds ×0.75 and ×1.5 |
 | S-I Outcome metric | WPA-only ranking |
+| S-K Innings scope | Leverage from chase (innings 2) balls only (the better-calibrated WP model) |
 | S-J Activity filter | No "active since 2025" filter (main run uses it, per D2) |
 
 **Reported per scenario:** overlap with the main top 10, Kendall τ on the top 20, and players entering or leaving.

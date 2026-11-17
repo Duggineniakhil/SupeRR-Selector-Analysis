@@ -52,6 +52,10 @@ Fit a model for **P(batting side wins | state)** at every legal-ball state.
 - *projected total*, from a first-innings scoring model (expected remaining runs given balls and wickets)
 - The second-innings model is applied at the projected target, which turns first-innings states into a WP.
 
+**Implementation note (T5, done):** the "projected total" and the chase "resource" both come from a DLS-style expected-remaining-runs curve, `ERR(balls_rem, wickets_in_hand, env_par)`, fitted on this pack. `env_par` is the tier × season scoring environment. See `outputs/validation/err_model.md`.
+
+**Model selection gate (applies to ERR and WP):** a candidate must be monotone on the full state grid (more runs needed → lower WP; more balls or wickets → higher WP). Among the candidates that pass, the lowest leave-one-season-out loss wins, and the simpler model is preferred if it is within 1%.
+
 **Model choice:** logistic regression (GLM) with natural-spline terms and interactions (statsmodels or scikit-learn), or a monotone-constrained gradient-boosting model as a challenger. The final choice depends on calibration and log-loss in **leave-one-season-out cross-validation**. Prefer the simpler model if the performance gap is < 1% log-loss. Training labels: `win_team_id`. Exclude no-results and abandoned matches. Ties and super overs are labelled 0.5, or excluded (sensitivity).
 
 **Validation requirements:**
