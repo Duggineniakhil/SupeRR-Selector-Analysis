@@ -67,6 +67,13 @@ Python that reads the data pack runs with `python -I` from outside `Data Pack/`.
 
 | T7 Pressure labelling | ✅ Done | `src/pressure.py`; `outputs/validation/pressure_validation.md`; `data_interim/pressure.parquet` (LI, leverage weight, tier, WPA, PI, S1–S6 per delivery). Pressure balls (top 25% LI) carry 49.8% of win-probability movement. See `03 §8a` for the construct evidence and the definition changes. |
 
+| T8 Context baselines | ✅ Done | `src/baselines.py`; `outputs/validation/baselines_checks.md`. Hierarchical shrunk cell means (k = 50) over innings × phase → wickets bin → pressure tier → pace/spin → tier → season. Residuals ≈ 0 overall, and ≤ 0.016 runs/ball in every innings × phase × tier cell with n ≥ 100. Wicket value λ: about 10 runs in the powerplay, about 3 at the death. |
+| T9 Player metrics | ✅ Done | `src/player_metrics.py`; `outputs/validation/player_metrics_checks.md`; `data_interim/player_{bat,bowl}.parquet`. Composite weights were locked in `config.yaml` **before** this stage, and no leaderboard has been viewed. Reconciliation is exact (balls, runs, legal balls, wickets). Tier credibility from bridging players was unstable (90% CIs about 0–4; only 5–11 players bridge to T3/T4), so the **pre-registered fallback** is used: IPL 1.0 / T2 0.9 / T3–T4 0.6. Provisional eligible pool: **86 batters, 83 bowlers**. |
+
+**Findings that shape T10–T11 (no player names involved):**
+- IPL split-half reliability of *overall* per-ball value is only r ≈ 0.25–0.29 for players with ≥ 150 balls per half. Pressure subsets will be noisier, so shrinkage strength matters.
+- The components are strongly correlated (pressure value vs pressure WPA ρ ≈ 0.9; vs pressure differential ρ ≈ 0.75–0.81). The differential is probably dominated by noise in the pressure sample. T10 tests this directly. If the differential's reliability is < 0.2, the pre-stated rule in `04 §10.3` down-weights it.
+
 Run: `python -I src/run_pipeline.py` from the project root (about 15 s). Outputs go to `data_interim/` (local only, git-ignored).
 
 ## 3. Suggested sequence (critical path)

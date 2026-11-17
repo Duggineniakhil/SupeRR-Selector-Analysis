@@ -92,6 +92,10 @@ ctx = (innings, phase[PP/Mid/Death], wickets_fallen bucket[0-1,2-3,4-5,6+],
 3. **Tier credibility factor** `κ_tier` for combining evidence: estimated from **bridging players** (players with enough balls in both T1 and T2/T3/T4). Compare their context-adjusted value across tiers, and use the ratio to discount lower tiers. If the estimate is unstable, fall back to fixed discounts (T1 = 1.0, T2 = 0.9, T3 = 0.6, T4 = 0.6) and **disclose** them as judgement, with sensitivity runs.
 4. Sensitivity runs: **IPL-only** ranking, and **T1 + T2 only**.
 
+**Implementation (T9):** the bridging estimate was unstable (90% CI width > 0.5; fewer than 15 bridging players for T3/T4), so the fallback discounts are used as pre-registered: T1 1.0, T2 0.9, T3 0.6, T4 0.6. The T2 point estimates (batting 0.98, bowling 0.84) are consistent with 0.9. Disclosed as judgement in the report. Sensitivity runs: S-E.
+
+**Implementation details (T9):** consistency (C2/C3) uses a symmetric rule for batting and bowling. A *pressure innings* is ≥ 4 pressure balls faced in a match, and a *pressure spell* is ≥ 6 pressure deliveries. Success = the summed context-adjusted value is > 0. Failure = the value is < 0 **and** WPA < 0. The consistency component = success rate − failure rate. Non-striker run-outs cost the dismissed non-striker λ (no ball added). No-result matches are excluded from ratings.
+
 ## 7. Recency
 
 `r_b = 0.5^{(ref_date − match_date)/H}` with ref_date = 1 Nov 2026 and half-life H = 2 years (sensitivity: H = 1 year, H = ∞). Rationale: the auction buys future performance. Older seasons still inform the estimate but count less. The 2026 IPL is the most recent full-intensity evidence.

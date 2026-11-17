@@ -63,3 +63,30 @@ pressure:
   outcome_context_wih_bins: [0, 3, 6, 8, 10]
   bootstrap_reps: 500                    # match-cluster bootstrap for tier separation CIs
   seed: 20261117
+
+# ---- Baselines & player metrics (planning/04; T8–T9) ----
+# LOCKED 17 Nov 2026 before any player-level output was produced (planning/04 §10.3).
+baselines:
+  # hierarchy: each level adds one dimension; sparse cells shrink to the parent level
+  levels: [["innings", "phase"], ["wbin"], ["pressure_tier"], ["pace_or_spin"], ["tier"], ["year"]]
+  shrink_k: 50                     # pseudo-balls toward the parent cell
+metrics:
+  recency_half_life_years: 2.0     # r_b = 0.5^((ref_date - match_date)/H)
+  exclude_no_result: true
+  min_pressure_balls_innings: 4    # batting: a "pressure innings" for consistency stats
+  min_pressure_balls_spell: 6      # bowling: a "pressure spell"
+  tier_credibility_fallback:       # used if bridging-player estimate is unstable (CI width > 0.5)
+    T1_IPL: 1.0
+    T2_T20I_TOP: 0.9
+    T3_T20I_OTHER: 0.6
+    T4_A_TEAM: 0.6
+composite_weights:                 # planning/04 §10.1–10.2 (a priori)
+  performance: 0.40                # B3 / W3 pressure value (EB-shrunk)
+  wpa: 0.20                        # B4 / W4 pressure WPA
+  differential: 0.20               # B9 / W10 pressure − non-pressure value
+  consistency: 0.20                # success − failure rate across pressure innings / spells
+eligibility_provisional:           # finalised by reliability analysis in T10
+  bat_min_pressure_balls: 120
+  bat_min_pressure_innings: 20
+  bowl_min_pressure_balls: 150
+  bowl_min_pressure_matches: 20
