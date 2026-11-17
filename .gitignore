@@ -10,3 +10,6 @@ outputs/rankings/
 
 # Verification log names the shortlist (competitive) — local only
 research/
+
+# Methodology report and named figures (contain the picks) — local only
+report/

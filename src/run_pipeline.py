@@ -1,6 +1,6 @@
 """Pipeline entrypoint. Run from the project root with:  python -I src/run_pipeline.py [stage ...]
 
-Stages: ingest (T1), clean (T2), state (T3), par (T5), wp (T6), pressure (T7), baselines (T8), players (T9), reliability (T10), estimators (T11), sensitivity (T13), oot (T14), rr (T17). Default: all.
+Stages: ingest (T1), clean (T2), state (T3), par (T5), wp (T6), pressure (T7), baselines (T8), players (T9), reliability (T10), estimators (T11), sensitivity (T13), oot (T14), rr (T17), figures (T18), report (T19). Default: all.
 """
 from __future__ import annotations
 
@@ -20,6 +20,8 @@ import estimators  # noqa: E402
 import sensitivity  # noqa: E402
 import validation_oot  # noqa: E402
 import rr_overlay  # noqa: E402
+import report_figures  # noqa: E402
+import report_build  # noqa: E402
 import ingest  # noqa: E402
 import state  # noqa: E402
 from common import load_config  # noqa: E402
@@ -32,7 +34,9 @@ STAGES = {"ingest": ingest.run, "clean": clean.run, "state": state.run,
           "estimators": estimators.run,
           "sensitivity": sensitivity.run,
           "oot": validation_oot.run,
-          "rr": rr_overlay.run}
+          "rr": rr_overlay.run,
+          "figures": report_figures.run,
+          "report": report_build.run}
 
 if __name__ == "__main__":
     cfg = load_config()

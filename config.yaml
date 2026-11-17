@@ -144,4 +144,5 @@ rr_overlay:
   bat_roles: ["top_order", "middle_order", "finisher"]
   bowl_roles: ["pace_powerplay", "pace_death", "spin"]
   candidates_per_list: 30            # ranked players considered as targets / alternatives
+  candidates_per_list_official: 60   # deeper once official lists show most top players retained
   scenario_depth: 3                  # primary target + 2 fallbacks per role

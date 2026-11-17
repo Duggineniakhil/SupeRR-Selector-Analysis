@@ -102,6 +102,7 @@ def run(cfg: dict | None = None):
                          f"Spearman vs {raw_lab}": pd.Series(x[ok2]).corr(pd.Series(y_raw[ok2]), method="spearman"),
                          "top-10 mean test percentile": pct[top].mean()})
         T = pd.DataFrame(rows)
+        T.assign(kind=kind).to_csv(out / "validation" / f"out_of_time_{kind}.csv", index=False)
         L += [f"## {name}", "",
               f"Evaluation players: ≥ {MIN_TEST[kind]} pressure balls in 2025–26 and n_eff ≥ 30 in 2022–24 "
               f"(n = {len(ids)}).", "", md_table(T, index=False, floatfmt="{:.3f}"), ""]

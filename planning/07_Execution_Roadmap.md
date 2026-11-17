@@ -151,6 +151,8 @@ The pre-registered rules applied: the differential weight is set to 0 for both l
 
 | T17 RR squad analysis | ✅ Done (scenario framing; refresh when the official retention lists are out) | `src/rr_overlay.py`; see `06 §5a`. Need matrix: death pace = **GAP**; top order, finisher, powerplay pace and spin = THIN; middle order = COVERED. No completed trade involves RR. Confirmed trades elsewhere (e.g. a spinner DC→LSG, a death bowler CSK→SRH) moved two candidates to "stretch". |
 
+| T17 refresh: official IPL 2027 retention lists | ✅ Done (17 Nov 2026) | `research/official_2027.json` (local; sources inside). The overlay now uses official statuses: the RR squad = officially retained players, and targets = released or no-IPL-team players only. Updated need matrix: death pace **GAP**; top order, middle order, finisher, spin THIN; powerplay pace COVERED (traded-in pace bowler). RR purse Rs 27.05 cr, 6 slots, 3 overseas. |
+
 Run: `python -I src/run_pipeline.py` from the project root (about 15 s). Outputs go to `data_interim/` (local only, git-ignored).
 
 ## 3. Suggested sequence (critical path)
@@ -169,6 +171,8 @@ In parallel once T3 is done: T4 (EDA). In parallel with modelling: start T17 (RR
 | D5 | Estimator for "performance under pressure" (after the T10 reliability findings) | **Build three competing estimators and choose by chronological out-of-sample validation.** M1 = pressure-only, EB-shrunk. M2 = all-balls context-adjusted ability. M3 = hybrid: baseline ability (non-pressure) + shrunk pressure residual, with weights learned out-of-sample. Shrinkage hyper-parameters are estimated from training data, not fixed n\* constants. Batting and bowling are separate. Pressure-specific terms are **not forced in** if they add no predictive value. Report per player: baseline ability, actual pressure performance, pressure advantage, opportunities, confidence, final predictive rating. Key message: *identify players whose underlying ability and demonstrated performance give the strongest evidence that they will deliver when it matters, not those with occasional extraordinary pressure performances.* | `src/estimators.py`; the selection rule was pre-registered in `config.yaml` (`estimators`) before any result. Rankings are written to `outputs/rankings/` (git-ignored, local only). |
 
 | D6 | Bowling estimator after T11 | **M2 (all-balls ability) for bowling, the same as batting.** This is a disclosed deviation from the pre-registered rule, which picked M3. Reasons: M3's skill edge (0.009) is within noise; with τ²_R = 0, M3 reduces to non-pressure ability and ignores pressure balls; M2 has the higher out-of-sample correlation (0.213 vs 0.198). The rule's choice is still reported in `t11_estimators.md`. | `config.yaml` `estimators.override`; bowling top 10: median P(top-10) 0.62, mean 90% rank interval 33 places |
+
+| D7 | IPL-ineligible players in the official lists | **Excluded** (participant, 17 Nov 2026): Pakistan nationals cannot play in the IPL, so they are removed from the submitted lists and the players below move up. Model ratings, rank ranges and P(top-10) are unchanged. Batting top 10 unaffected; bowling: one player out, the #11 player in. | `src/report_build.py` (`top10_table`); Claude Doc section 5 note |
 
 **Still open (not blocking now):** confirm that ESPNcricinfo / IPLT20.com / official RR channels are acceptable external sources. The participant signs off on the final picks.
 

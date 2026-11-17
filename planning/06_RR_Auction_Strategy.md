@@ -100,6 +100,10 @@ For each recommended player:
 - **Verification:** the identity, DOB and nationality of every player named in a chain is verified and logged (`research/verification_log.csv`, local). Ranks 13–30 that do not appear in a chain use rule-based statuses.
 - **Not assessed:** price or cost tier (no verified auction prices). The overseas-slot balance is noted qualitatively: most realistic targets are overseas, so the Indian fallbacks in each chain matter.
 
+### 5b. Refresh with official retention lists (17 Nov 2026)
+
+The official lists replaced every assumption in 5a. RR released 9 players (including a middle-order batter and a death bowler), traded one all-rounder out and one fast bowler in, and holds Rs 27.05 crore with 6 slots (3 overseas). Need matrix: death pace **GAP**; top order, middle order, finisher and spin THIN; powerplay pace COVERED. Targets are now drawn only from officially released players or players with no IPL team in 2026. Stretch tiers are removed, because retained players are unavailable. Priority: the death-bowling gap first, then the best available batter, then spin. Most targets are overseas, so the 3 overseas slots are the binding constraint.
+
 ## 6. Guardrails
 
 - No player is recommended **only** because of a high pressure score. A need fit or a value argument is required.
