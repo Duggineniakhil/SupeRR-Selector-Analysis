@@ -122,6 +122,22 @@ The pre-registered rules applied: the differential weight is set to 0 for both l
 | Pre-stated swap rule | not triggered (ranks 11–12 not Robust) | not triggered |
 | Lowest-agreement scenarios | EST_M1 (5/10), ELIG_x1.5 (6/10) | EST_M1 (5/10), WPA_only (5/10), PRESS_top15 (6/10) |
 
+| T14 Out-of-time validation | ✅ Done | `src/validation_oot.py`; `outputs/validation/out_of_time.md` (no names). Train 2022–24 → test 2025–26. |
+
+**T14 results (correlational, not predictive guarantees):**
+| | Batting (n = 93) | Bowling (n = 81) |
+|---|---|---|
+| M2 (final) r_w vs later pressure value [90% CI] | 0.16 [−0.02, 0.32] | **0.43 [0.31, 0.53]** |
+| M1 pressure-only | 0.07 | 0.16 |
+| Raw pressure value (no shrinkage) | −0.02 | 0.07 |
+| Naive: raw pressure SR / economy | 0.19 | 0.15 |
+| Naive: overall (non-pressure) SR / economy | **0.21 [0.04, 0.35]** | 0.26 |
+| M2 top-10 mean later percentile (50 = no skill) | 60 | 71 |
+| Naive overall SR / economy top-10 percentile | 67 | 70 |
+
+- **Bowling:** the final estimator clearly beats every naive alternative out of time.
+- **Batting:** the final estimator is *not* demonstrably better than overall strike rate (the CIs overlap heavily). Shrinkage clearly helps (raw pressure value ≈ 0 → M2 0.16), but the dismissal-cost term probably adds noise. **The model is not changed in response**, because 2025–26 is the test set and choosing a model on it would contaminate the test. Disclosed as a limitation (R13). An SR-based comparison is reported in the batting evidence.
+
 Run: `python -I src/run_pipeline.py` from the project root (about 15 s). Outputs go to `data_interim/` (local only, git-ignored).
 
 ## 3. Suggested sequence (critical path)
