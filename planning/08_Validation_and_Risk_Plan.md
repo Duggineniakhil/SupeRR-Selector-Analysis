@@ -57,6 +57,7 @@ A clean rerun from raw CSVs with fixed seeds reproduces identical rankings. The 
 | S-G Shrinkage | Weaker prior (τ² × 2); none (raw, eligibility only) |
 | S-H Eligibility | Thresholds ×0.75 and ×1.5 |
 | S-I Outcome metric | WPA-only ranking |
+| S-L Tiering scope | Pressure tiers computed within each innings (equal High/Extreme share for batting-first and chasing) instead of pooled LI quantiles |
 | S-K Innings scope | Leverage from chase (innings 2) balls only (the better-calibrated WP model) |
 | S-J Activity filter | No "active since 2025" filter (main run uses it, per D2) |
 

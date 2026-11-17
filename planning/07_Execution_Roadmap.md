@@ -65,6 +65,8 @@ Python that reads the data pack runs with `python -I` from outside `Data Pack/`.
 | T5 Par / ERR model | ✅ Done | `src/models_par.py`; `outputs/validation/err_model.md`. Three candidates were compared by leave-one-season-out CV. **Selected: DLS-style resource curve** `(env/160)·Z_w·(1−e^(−k_w·b))` (LOSO MAE 16.63 vs naive 17.34). The spline GLM was rejected because it failed the monotonicity gate (implausible extrapolation, negative wicket values), even though its MAE was similar. Scoring environment `env_par` = shrunk tier × season mean first-innings total (IPL 171 → 196, 2022 → 2026). |
 | T6 Win-probability | ✅ Done | `src/models_wp.py`; `outputs/validation/wp_model.md`. **Selected: spline logistic GLM for both innings.** It passes the monotonicity gate on 100,800 / 61,200 state grids and beats the HGB challenger on LOSO log-loss. Chase: log-loss 0.387 (phase-only baseline 0.602), AUC 0.91, calibration slope 1.04. First innings: log-loss 0.629 (baseline 0.666), AUC 0.71, slope 1.01. Innings-break continuity gap: median 0.03. A feasibility cap (WP ≤ 0.01 when runs needed > 6 × balls left) handles extras-only states. Per-delivery `wp_before` / `wp_after` are in `data_interim/wp.parquet` (99.8% coverage). |
 
+| T7 Pressure labelling | ✅ Done | `src/pressure.py`; `outputs/validation/pressure_validation.md`; `data_interim/pressure.parquet` (LI, leverage weight, tier, WPA, PI, S1–S6 per delivery). Pressure balls (top 25% LI) carry 49.8% of win-probability movement. See `03 §8a` for the construct evidence and the definition changes. |
+
 Run: `python -I src/run_pipeline.py` from the project root (about 15 s). Outputs go to `data_interim/` (local only, git-ignored).
 
 ## 3. Suggested sequence (critical path)

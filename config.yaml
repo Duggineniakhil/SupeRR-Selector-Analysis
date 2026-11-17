@@ -52,3 +52,14 @@ tiers:
 # ---- Eligibility (decision D2) ----
 eligibility:
   active_since: "2025-01-01"
+
+# ---- Pressure (planning/03; T7) ----
+pressure:
+  tier_quantiles: [0.50, 0.75, 0.90]     # Low < P50 ≤ Moderate < P75 ≤ High < P90 ≤ Extreme
+  tier_groups: "ipl_vs_other"            # cut-points computed within IPL and within non-IPL
+  li_cap_quantile: 0.99                  # leverage weight w_b = min(LI, P99)
+  alive_wp: [0.05, 0.95]                 # rule-based PI only counts "live" situations
+  pi_weights: [0.3333, 0.3333, 0.3334]   # equal a-priori weights (sensitivity ±50% later)
+  outcome_context_wih_bins: [0, 3, 6, 8, 10]
+  bootstrap_reps: 500                    # match-cluster bootstrap for tier separation CIs
+  seed: 20261117

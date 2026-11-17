@@ -164,6 +164,25 @@ The thresholds are **parameters in `config.yaml`** and are reported alongside ho
 
 ---
 
+## 8a. Implementation results (T7, 17 Nov 2026) — `outputs/validation/pressure_validation.md`
+
+**Definition changes made before any player-level output was viewed:**
+- Swing is the **mean absolute spread of next-ball WP around its expectation**, `Σ p(o)|WP(s⊕o) − E[WP(s⊕·)]|`, instead of `|WP(s⊕o) − WP(s)|`. Reason: the first-innings and chase WP models have a small seam at the innings break (median 0.03), which inflated leverage on last-ball and 10th-wicket states.
+- S4 "defending a close total" is redefined as innings 2, overs 13–20, WP 0.2–0.8. The old run-rate rule mostly captured easy chases.
+- The convergence κ is computed at matched base rates.
+
+**Construct evidence:**
+| Test | Result |
+|---|---|
+| Outcome relevance | High + Extreme = 25% of balls, carrying **49.8%** of realised \|WPA\|. Extreme = 10% of balls, 27.9% of \|WPA\|. |
+| Not just "death overs" | 60% of death-over balls are Low leverage. 20.5% of middle-over balls are High or Extreme. |
+| Convergence (chase) | Spearman(LI, PI) = 0.65; κ = 0.42 ✅ |
+| Convergence (first innings) | Spearman ≈ 0; κ = 0.03 ❌. The rule-based first-innings PI measures *difficulty* (below par, collapse); LI measures *stakes*. They are different constructs. LI stays the primary measure; PI-based rankings remain a sensitivity scenario (S-B). |
+| League behaviour under pressure | After controlling for innings × phase × wickets in hand, league-wide outcomes differ only marginally by tier (most 95% CIs include 0; chase Extreme boundary% −0.7 pp). **Pressure barely changes average performance**, so any pressure skill is player-level and possibly small. This raises the importance of R14 (repeatability) and of shrinkage. |
+| Pressure share by innings | Chase: 41% of balls are High/Extreme. First innings: 10.5%. Pooled tiers make ratings chase-heavy (sensitivity S-L: within-innings tiers). |
+
+Tier cut-points (LI): IPL P50 0.90, P75 1.23, P90 1.76; non-IPL is almost identical. Leverage weight cap (P99) = 4.79.
+
 ## 9. Known limitations of the framework
 
 - The WP model ignores venue-specific pitch and dew conditions beyond a coarse venue effect. Team-strength differences are not in the state.
