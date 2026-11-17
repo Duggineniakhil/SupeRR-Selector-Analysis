@@ -132,3 +132,16 @@ estimators:
   # the batting estimator. The rule's own choice is still reported.
   override:
     bowl: M2
+
+# ---- RR auction overlay (T17, planning/06) — rules written BEFORE the RR profile was computed ----
+rr_overlay:
+  team_id: 3
+  squad_comp: "IPL 2026"             # latest confirmed squad in the pack; 2027 retentions unpublished
+  as_of: "2026-11-17"
+  min_role_eff_n: 150                # a squad player "counts" in a role with >= this effective n
+  # Need severity per role: count squad players who count in the role AND whose M2 rating is
+  # >= the median of that discipline's eligible pool. 0 -> GAP (2), 1 -> THIN (1), >= 2 -> COVERED (0).
+  bat_roles: ["top_order", "middle_order", "finisher"]
+  bowl_roles: ["pace_powerplay", "pace_death", "spin"]
+  candidates_per_list: 30            # ranked players considered as targets / alternatives
+  scenario_depth: 3                  # primary target + 2 fallbacks per role

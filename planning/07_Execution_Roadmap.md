@@ -149,6 +149,8 @@ The pre-registered rules applied: the differential weight is set to 0 for both l
   - The remaining picks are under contract with other franchises, and their retention is unknown.
 - **Implication for T17:** most top-ranked players are likely to be retained by their current franchises. RR's realistic auction targets will probably come from further down the eligible pool. The RR overlay must be built from the **official** retention/auction lists once they are published.
 
+| T17 RR squad analysis | ✅ Done (scenario framing; refresh when the official retention lists are out) | `src/rr_overlay.py`; see `06 §5a`. Need matrix: death pace = **GAP**; top order, finisher, powerplay pace and spin = THIN; middle order = COVERED. No completed trade involves RR. Confirmed trades elsewhere (e.g. a spinner DC→LSG, a death bowler CSK→SRH) moved two candidates to "stretch". |
+
 Run: `python -I src/run_pipeline.py` from the project root (about 15 s). Outputs go to `data_interim/` (local only, git-ignored).
 
 ## 3. Suggested sequence (critical path)

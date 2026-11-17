@@ -78,6 +78,28 @@ For each recommended player:
 5. **Potential risks**: sample size, tier mix, age, form trend, injury, availability, role overlap.
 6. **Why they are a better investment than alternatives**: a comparison table with 2–3 alternatives in the same role (rating, CI, cost tier, risk).
 
+## 5a. Implementation (T17, 17 Nov 2026) — scenario framing
+
+`src/rr_overlay.py`. The rules were pre-registered in `config.yaml` (`rr_overlay`). The output with names is `outputs/rankings/rr_overlay.md` (local only). The name-free need matrix is in `outputs/validation/rr_overlay_summary.md`.
+
+- **Squad basis:** the RR IPL 2026 squad in the pack (27 players), each labelled [ASSUMPTION: retained]. The IPL 2027 retention lists were not published on the as-of date. **No completed IPL 2027 trade involves RR** (trade tracker, 16 Nov 2026). Rumoured RR trade talks are recorded as [REPORTED].
+- **Need matrix** (squad players with n_eff ≥ 150 rated at or above the eligible-pool median, by role):
+
+| Role | Severity |
+|---|---|
+| Top-order batting | THIN |
+| Middle-order batting | COVERED |
+| Finisher | THIN |
+| Powerplay pace | THIN |
+| **Death pace** | **GAP**: no RR death bowler rates at or above the pool median |
+| Spin | THIN |
+
+  The death-bowling gap agrees with independent reports that RR are seeking a fast bowler in trade talks [REPORTED].
+- **Availability tiers:** RR_CORE (back / retain); UNAVAILABLE (retired from the IPL, or de facto excluded); DOUBTFUL; AUCTION_LIKELY; and CONDITIONAL. CONDITIONAL is split into *reported likely retained* (stretch), *reported possible release*, *rumoured RR link*, or *no report*. Sources are in `research/reported_retentions.csv` (local).
+- **Scenario chains per role:** a stretch target (only if released), then a realistic target, then two fallbacks, in ranking order. These are written so the recommendation still holds whatever the retention lists show. When the lists are published, only the status column changes and the chains re-order automatically.
+- **Verification:** the identity, DOB and nationality of every player named in a chain is verified and logged (`research/verification_log.csv`, local). Ranks 13–30 that do not appear in a chain use rule-based statuses.
+- **Not assessed:** price or cost tier (no verified auction prices). The overseas-slot balance is noted qualitatively: most realistic targets are overseas, so the Indian fallbacks in each chain matter.
+
 ## 6. Guardrails
 
 - No player is recommended **only** because of a high pressure score. A need fit or a value argument is required.
