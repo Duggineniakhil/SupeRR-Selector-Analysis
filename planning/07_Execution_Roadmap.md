@@ -138,6 +138,17 @@ The pre-registered rules applied: the differential weight is set to 0 for both l
 - **Bowling:** the final estimator clearly beats every naive alternative out of time.
 - **Batting:** the final estimator is *not* demonstrably better than overall strike rate (the CIs overlap heavily). Shrinkage clearly helps (raw pressure value ≈ 0 → M2 0.16), but the dismissal-cost term probably adds noise. **The model is not changed in response**, because 2025–26 is the test set and choosing a model on it would contaminate the test. Disclosed as a limitation (R13). An SR-based comparison is reported in the batting evidence.
 
+| T16 External verification | ✅ Identity done; ⏳ auction status pending official lists | `research/verification_log.csv` (local only, git-ignored because it names the shortlist); generator in `research/write_verification_log.py` (also local only). Top 12 of each list checked. |
+
+**T16 findings (17 Nov 2026), no names here:**
+- **Identity (V1–V5): 24/24 pass.** Single player_id each; none is a shared-name case; nationality, DOB and public role are consistent with the pack-inferred role groups. Sources: Wikipedia player pages, accessed 17 Nov 2026.
+- **IPL 2027 status (V8):** the official retention lists are **not yet published**. The deadline was reportedly extended to 17 Nov 2026, and the mini-auction is reported for 16 Dec 2026 (Goa). Every "retained / available" status is therefore **UNVERIFIED** for now. Re-check when the lists are published.
+- **Availability constraints already confirmed or reported** (they affect only the RR overlay, not the official rankings, per D1):
+  - Batting top 10: 1 player is already at RR (benchmark, not a target); 1 player **retired from the IPL** (Nov 2025, [CONFIRMED]); 1 player has had no IPL team in 2025–26 and would need to register.
+  - Bowling top 10: 1 Pakistan player (de facto IPL exclusion since 2008, [REPORTED]); 1 Bangladesh player released in Jan 2026 on BCCI instruction ([CONFIRMED] release; 2027 availability doubtful).
+  - The remaining picks are under contract with other franchises, and their retention is unknown.
+- **Implication for T17:** most top-ranked players are likely to be retained by their current franchises. RR's realistic auction targets will probably come from further down the eligible pool. The RR overlay must be built from the **official** retention/auction lists once they are published.
+
 Run: `python -I src/run_pipeline.py` from the project root (about 15 s). Outputs go to `data_interim/` (local only, git-ignored).
 
 ## 3. Suggested sequence (critical path)

@@ -7,3 +7,6 @@ __pycache__/
 
 # Player rankings: competitive asset, local only unless the owner opts in
 outputs/rankings/
+
+# Verification log names the shortlist (competitive) — local only
+research/
