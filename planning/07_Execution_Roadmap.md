@@ -74,6 +74,37 @@ Python that reads the data pack runs with `python -I` from outside `Data Pack/`.
 - IPL split-half reliability of *overall* per-ball value is only r ≈ 0.25–0.29 for players with ≥ 150 balls per half. Pressure subsets will be noisier, so shrinkage strength matters.
 - The components are strongly correlated (pressure value vs pressure WPA ρ ≈ 0.9; vs pressure differential ρ ≈ 0.75–0.81). The differential is probably dominated by noise in the pressure sample. T10 tests this directly. If the differential's reliability is < 0.2, the pre-stated rule in `04 §10.3` down-weights it.
 
+| T10 Reliability | ✅ Done | `src/reliability.py`; `outputs/validation/reliability.md`; the follow-up check is `scripts/explore_predictors.py` (exploratory, aggregates only). Decision rules were pre-registered in `config.yaml` before the results. |
+
+**T10 findings (decisive for T11):**
+| | Batting | Bowling |
+|---|---|---|
+| Full-sample reliability: pressure value | 0.29 | 0.14 |
+| Full-sample reliability: pressure WPA | 0.28 | 0.08 |
+| Full-sample reliability: pressure − usual (differential) | −0.03 | −0.21 |
+| Full-sample reliability: consistency | 0.14 | 0.12 |
+| Season-to-season r (pressure value) | −0.02 | −0.26 |
+| Stabilisation point n* (pressure balls) | 366 | 776 |
+| Raw SR/economy, dot%, boundary% reliability | 0.60–0.68 | 0.60–0.73 (largely role / style signal) |
+| Half-A predictor of half-B pressure value: pressure-only / non-pressure / **all balls** | 0.10 / 0.16 / **0.18** | 0.14 / 0.22 / **0.24** |
+
+The pre-registered rules applied: the differential weight is set to 0 for both lists. Weights are now batting performance 0.531 / WPA 0.266 / consistency 0.203, and bowling 0.592 / 0.156 / 0.252. Eligibility stays at the provisional thresholds (the pool at n* would be 22 batters and 1 bowler). **Pressure-specific skill is not distinguishable from noise in this sample, as R14 anticipated.** A player's context-adjusted value on *all* balls is the best available predictor of their pressure performance. Estimator choice for T11: see the decisions log (D5).
+
+| T11 Estimators + T12 rank uncertainty | ✅ Done (final estimator M2 for both lists; D6) | `src/estimators.py`; `outputs/validation/t11_estimators.md` (no names); rankings in `outputs/rankings/` (local only). Two bugs were found and fixed during T11: (1) the EB sampling variance was computed as σ² instead of σ²/n, which made all τ² ≈ 0; (2) bowling `role_group` in the T9 tables was misaligned (positional array assignment). Results above are from the corrected run. |
+
+**T11 results (chronological folds 2024 / 2025 / 2026):**
+| | Batting | Bowling |
+|---|---|---|
+| Pooled MSE skill M1 / M2 / M3 | 0.072 / **0.106** / 0.066 | 0.005 / −0.003 / **0.007** |
+| Pooled weighted r M1 / M2 / M3 | −0.07 / **0.17** / 0.16 | 0.05 / **0.21** / 0.20 |
+| Pressure-residual variance τ²_R (folds) | 0.015, 0, 0 | 0.002, 0, 0 |
+| Rule selection | **M2** (all-balls) | **M3** (by 0.009 skill, within noise) |
+| Final-fit top-10 overlap M2∩M3 / M1∩M2 | 8 / 5 | 8 / 5 |
+| Top-10 median P(top-10); mean 90% rank-interval width | 0.65; 22.8 | 0.61; 33.3 |
+
+- **Pressure-specific advantage cannot be detected** (τ²_R ≈ 0). With τ²_R = 0, M3 collapses to non-pressure baseline ability only, so pressure balls are ignored. The bowling choice (keep M3 per rule, or use M2) is logged as **D6**.
+- MSE skill partly reflects intercept calibration (the null is the training mean). Model-vs-model comparisons are unaffected because all models share the same null. Correlations are reported alongside.
+
 Run: `python -I src/run_pipeline.py` from the project root (about 15 s). Outputs go to `data_interim/` (local only, git-ignored).
 
 ## 3. Suggested sequence (critical path)
@@ -88,6 +119,10 @@ In parallel once T3 is done: T4 (EDA). In parallel with modelling: start T17 (RR
 | D2 | Recency / activity filter | **Active since 1 Jan 2025.** A player needs ≥ 1 IPL or T20I appearance (in the pack) on or after 2025-01-01. Older matches still count, down-weighted by the recency half-life. | Applied at Stage 0 (`05 §1`) and `03 §8`. The "no filter" run stays as sensitivity scenario S-J. |
 | D3 | T20I weighting | **Tiered discount.** T1 IPL = full weight; T2/T3/T4 discounted by the tier credibility factor (`04 §6`). IPL-only is a sensitivity scenario (S-E). | As in `04 §6`. |
 | D4 | Unstop dropdown pool | **Verify from the actual submission form. Do not invent or assume the eligible player pool.** | New blocking task **T0** (below). Until it is done, rankings are computed over the data-pack eligible pool and labelled *provisional*. No player is finalised until confirmed in the form. |
+
+| D5 | Estimator for "performance under pressure" (after the T10 reliability findings) | **Build three competing estimators and choose by chronological out-of-sample validation.** M1 = pressure-only, EB-shrunk. M2 = all-balls context-adjusted ability. M3 = hybrid: baseline ability (non-pressure) + shrunk pressure residual, with weights learned out-of-sample. Shrinkage hyper-parameters are estimated from training data, not fixed n\* constants. Batting and bowling are separate. Pressure-specific terms are **not forced in** if they add no predictive value. Report per player: baseline ability, actual pressure performance, pressure advantage, opportunities, confidence, final predictive rating. Key message: *identify players whose underlying ability and demonstrated performance give the strongest evidence that they will deliver when it matters, not those with occasional extraordinary pressure performances.* | `src/estimators.py`; the selection rule was pre-registered in `config.yaml` (`estimators`) before any result. Rankings are written to `outputs/rankings/` (git-ignored, local only). |
+
+| D6 | Bowling estimator after T11 | **M2 (all-balls ability) for bowling, the same as batting.** This is a disclosed deviation from the pre-registered rule, which picked M3. Reasons: M3's skill edge (0.009) is within noise; with τ²_R = 0, M3 reduces to non-pressure ability and ignores pressure balls; M2 has the higher out-of-sample correlation (0.213 vs 0.198). The rule's choice is still reported in `t11_estimators.md`. | `config.yaml` `estimators.override`; bowling top 10: median P(top-10) 0.62, mean 90% rank interval 33 places |
 
 **Still open (not blocking now):** confirm that ESPNcricinfo / IPLT20.com / official RR channels are acceptable external sources. The participant signs off on the final picks.
 

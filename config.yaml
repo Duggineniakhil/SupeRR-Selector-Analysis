@@ -90,3 +90,45 @@ eligibility_provisional:           # finalised by reliability analysis in T10
   bat_min_pressure_innings: 20
   bowl_min_pressure_balls: 150
   bowl_min_pressure_matches: 20
+
+# ---- Reliability rules (T10) — written BEFORE reliability results were computed ----
+reliability:
+  random_splits: 20                 # random half-splits of matches (split-half reliability)
+  min_half_bat_pressure_balls: 60   # player needs this many pressure balls in EACH half
+  min_half_bowl_pressure_legal: 75
+  min_season_bat_pressure_balls: 60 # season-to-season stability sample
+  min_season_bowl_pressure_legal: 75
+  # Weight rule (planning/04 §10.3): if full-sample (Spearman-Brown) reliability of a composite
+  # component < 0.2, weight := weight × max(rel, 0) / mean(max(rel, 0) over components);
+  # then renormalise all weights to sum to 1.
+  weight_rule_threshold: 0.2
+  # Eligibility rule (planning/03 §8): minimum pressure balls := stabilisation point n*
+  # of the core value metric (reliability 0.5), PROVIDED that leaves >= 40 eligible players
+  # in the list; otherwise keep the provisional thresholds and report the expected
+  # reliability at that threshold (shrinkage then handles the remaining noise).
+  min_pool_size: 40
+
+# ---- T11 estimator selection (decision D5) — written BEFORE any T11 result ----
+estimators:
+  test_seasons: [2024, 2025, 2026]     # chronological folds: train on all earlier seasons
+  min_test_pressure_balls: 40          # evaluation players: >= this many pressure balls in test season
+  min_train_eff_n: 30                  # ... and >= this effective n on all training balls
+  min_eb_eff_n: 30                     # players used to estimate EB hyper-parameters
+  inner_min_eff_n: 20                  # inner-split calibration sample
+  bootstrap_reps: 300                  # match-cluster bootstrap for rank uncertainty (final fit)
+  # Selection rule:
+  #  1. Primary metric = pooled out-of-sample MSE skill, 1 - MSE/MSE_null (null = training mean),
+  #     weighted by test-season effective n.
+  #  2. M3 (hybrid) is selected only if it beats M2 (all-balls) on skill in >= 2 of 3 folds AND
+  #     on pooled skill; otherwise the best of M1/M2 by pooled skill. (Pressure-specific terms
+  #     are not forced in.)
+  #  3. The pre-registered T10 composite (M4: pressure value + WPA + consistency) is evaluated
+  #     by pooled Spearman only; it replaces the selected estimator only if its pooled Spearman
+  #     is higher.
+  # Decision D6 (participant, 17 Nov 2026) — disclosed deviation from the rule above, made after
+  # seeing T11 validation: bowling uses M2. Reasons: (1) M3's skill edge over M2 (0.009) is within
+  # noise; (2) with residual variance tau2_R = 0, M3 collapses to non-pressure ability and ignores
+  # pressure balls; (3) M2 has the higher out-of-sample correlation (0.213 vs 0.198) and matches
+  # the batting estimator. The rule's own choice is still reported.
+  override:
+    bowl: M2

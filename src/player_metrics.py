@@ -218,9 +218,12 @@ def bowling(d: pd.DataFrame, kappa: dict, cfg: dict) -> pd.DataFrame:
     pp_share = (b.phase == "PP").groupby(b.bowler_id).mean()
     t["pace_or_spin"] = ps
     t["death_share"] = death_share
-    t["role_group"] = np.where(ps == "Spin", "spin",
-                               np.where(death_share >= 0.30, "pace_death",
-                                        np.where(pp_share >= 0.40, "pace_powerplay", "pace_other")))
+    # build as an index-aligned Series (a bare np.where array would be assigned positionally)
+    role = pd.Series(np.where(ps == "Spin", "spin",
+                              np.where(death_share.reindex(ps.index) >= 0.30, "pace_death",
+                                       np.where(pp_share.reindex(ps.index) >= 0.40, "pace_powerplay", "pace_other"))),
+                     index=ps.index)
+    t["role_group"] = role.reindex(t.index)
     return t.rename_axis("player_id")
 
 

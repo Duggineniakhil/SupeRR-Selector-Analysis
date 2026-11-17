@@ -4,3 +4,6 @@ __MACOSX/
 data_interim/
 *.parquet
 __pycache__/
+
+# Player rankings: competitive asset, local only unless the owner opts in
+outputs/rankings/

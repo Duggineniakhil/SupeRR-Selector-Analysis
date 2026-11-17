@@ -36,7 +36,7 @@ Used: **fallback (bridging estimate unstable: CI width > 0.5 or < 15 players)** 
 - Batters with any pressure ball: 729; provisional eligible (≥120 pressure balls, ≥20 pressure innings, active since 2025): **86**
 - Bowlers with any pressure ball: 545; provisional eligible (≥150 pressure legal balls, ≥20 matches, active since 2025): **83**
 - Eligible batters by role: {'top_order': 40, 'middle_order': 31, 'finisher': 15}
-- Eligible bowlers by role: {'spin': 35, 'pace_powerplay': 23, 'pace_death': 13, 'pace_other': 12}
+- Eligible bowlers by role: {'pace_death': 28, 'spin': 26, 'pace_powerplay': 24, 'pace_other': 5}
 
 ## Metric distributions among provisionally eligible players (quantiles; no names)
 
