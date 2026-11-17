@@ -105,6 +105,23 @@ The pre-registered rules applied: the differential weight is set to 0 for both l
 - **Pressure-specific advantage cannot be detected** (τ²_R ≈ 0). With τ²_R = 0, M3 collapses to non-pressure baseline ability only, so pressure balls are ignored. The bowling choice (keep M3 per rule, or use M2) is logged as **D6**.
 - MSE skill partly reflects intercept calibration (the null is the training mean). Model-vs-model comparisons are unaffected because all models share the same null. Correlations are reported alongside.
 
+| T13 Sensitivity | ✅ Done | `src/sensitivity.py`; `outputs/validation/sensitivity.md` (no names); per-player robustness in `outputs/rankings/*_robustness.csv` (local). 17 scenarios. |
+
+**Fixes made during T13 (both affected T11 outputs, which were then rerun):**
+1. *Tier credibility was inert for single-tier players.* Scaling all of a player's weights by κ leaves the weighted mean and Kish n_eff unchanged, so pure-T20I evidence was never discounted. A first attempt treated κ and recency as variance inflation (n_eff = Σω), but that collapsed every τ² to 0, because older balls are less relevant, not noisier. **Final fix:** keep Kish n_eff for sampling variance, and apply κ as a *relevance factor* on the deviation from the prior: `post = μ + s·κ̄_i·(x − μ)`, where κ̄_i is the player's recency-weighted mean κ.
+2. Alternative-estimator ranks (M1, M3) now use their EB evidence, not calibrated predictions. M1's inner-split slope can be negative, which would invert its order.
+
+**T13 results:**
+| | Batting | Bowling |
+|---|---|---|
+| Mean top-10 overlap across 17 scenarios | 7.8 / 10 | 8.0 / 10 |
+| Median Kendall τ (main top 20) | 0.73 | 0.68 |
+| Main top-10 labels (Robust / Moderate / Fragile) | 5 / 4 / 1 | 4 / 6 / 0 |
+| Top-10 picks with > 40% of pressure balls vs T3/T4 | 0 | 0 |
+| Top-10 picks with 0% IPL pressure balls | 0 | 2 (both still top 10 in the IPL + top-T20I scenario) |
+| Pre-stated swap rule | not triggered (ranks 11–12 not Robust) | not triggered |
+| Lowest-agreement scenarios | EST_M1 (5/10), ELIG_x1.5 (6/10) | EST_M1 (5/10), WPA_only (5/10), PRESS_top15 (6/10) |
+
 Run: `python -I src/run_pipeline.py` from the project root (about 15 s). Outputs go to `data_interim/` (local only, git-ignored).
 
 ## 3. Suggested sequence (critical path)

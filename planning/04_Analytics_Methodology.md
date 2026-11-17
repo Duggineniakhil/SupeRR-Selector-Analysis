@@ -94,6 +94,8 @@ ctx = (innings, phase[PP/Mid/Death], wickets_fallen bucket[0-1,2-3,4-5,6+],
 
 **Implementation (T9):** the bridging estimate was unstable (90% CI width > 0.5; fewer than 15 bridging players for T3/T4), so the fallback discounts are used as pre-registered: T1 1.0, T2 0.9, T3 0.6, T4 0.6. The T2 point estimates (batting 0.98, bowling 0.84) are consistent with 0.9. Disclosed as judgement in the report. Sensitivity runs: S-E.
 
+**How κ enters the final estimator (T11/T13 fix):** κ is applied as a *relevance* factor in the EB posterior, `θ̂ = μ_g + s · κ̄_i · (x − μ_g)` with `s = τ²/(τ² + σ²/n_eff)`. Here κ̄_i is the recency-weighted mean κ of the player's balls, and n_eff stays Kish's. Weighting alone cannot discount a player whose balls all come from one tier, because uniform scaling leaves both the weighted mean and n_eff unchanged.
+
 **Implementation details (T9):** consistency (C2/C3) uses a symmetric rule for batting and bowling. A *pressure innings* is ≥ 4 pressure balls faced in a match, and a *pressure spell* is ≥ 6 pressure deliveries. Success = the summed context-adjusted value is > 0. Failure = the value is < 0 **and** WPA < 0. The consistency component = success rate − failure rate. Non-striker run-outs cost the dismissed non-striker λ (no ball added). No-result matches are excluded from ratings.
 
 ## 7. Recency

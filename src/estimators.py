@@ -64,13 +64,23 @@ def player_stats(bv: pd.DataFrame, kappa: dict, ref_date, half_life: float) -> p
     P = bv.P.to_numpy()
     w = {"P": np.where(P, bv.li_w.to_numpy() * base, 0.0), "N": np.where(~P, base, 0.0), "A": base}
     df = pd.DataFrame({"pid": bv.pid.to_numpy(), "P": P.astype(int)})
+    # Sampling variance uses Kish's n_eff = (Σw)²/Σw² (correct for the observed weighted mean and
+    # for the method-of-moments τ²). Tier credibility is a *relevance* factor, not extra noise:
+    # κ̄ = recency-weighted mean κ of the player's balls, applied to the deviation from the prior
+    # in eb_apply (so single-tier T20I evidence is discounted even though uniform weight scaling
+    # leaves the weighted mean and Kish n_eff unchanged).
+    rec = 0.5 ** (age / half_life)
+    kap = bv.tier.map(kappa).to_numpy()
     for s, ws in w.items():
         df[f"vw{s}"], df[f"w{s}"], df[f"q{s}"] = bv.v.to_numpy() * ws, ws, ws ** 2
+        mask = (ws > 0)
+        df[f"rk{s}"], df[f"r{s}"] = np.where(mask, rec * kap, 0.0), np.where(mask, rec, 0.0)
     g = df.groupby("pid").sum()
     out = pd.DataFrame(index=g.index)
     for s in "PNA":
         out[f"x_{s}"] = g[f"vw{s}"] / g[f"w{s}"].replace(0, np.nan)
         out[f"neff_{s}"] = (g[f"w{s}"] ** 2 / g[f"q{s}"].replace(0, np.nan)).fillna(0)
+        out[f"kbar_{s}"] = (g[f"rk{s}"] / g[f"r{s}"].replace(0, np.nan)).fillna(1.0)
     out["n_P"] = g["P"]
     out["n_A"] = df.groupby("pid").size()
     return out
@@ -104,11 +114,15 @@ def eb_fit(x: pd.Series, neff: pd.Series, grp: pd.Series, sig2: dict, min_neff: 
     return {"mu": mu.to_dict(), "mu_all": mu_all, "tau2": tau2, "sig2": sig2}
 
 
-def eb_apply(h: dict, x: pd.Series, neff: pd.Series, grp: pd.Series) -> tuple[pd.Series, pd.Series]:
+def eb_apply(h: dict, x: pd.Series, neff: pd.Series, grp: pd.Series,
+             kbar: pd.Series | None = None) -> tuple[pd.Series, pd.Series]:
+    """EB posterior. kbar (tier credibility, 0–1) scales the data's pull away from the prior."""
     mu = grp.map(lambda g: h["mu"].get(g, h["mu_all"])).astype(float)
     s2 = grp.map(lambda g: h["sig2"].get(g, h["sig2"]["_all"])).astype(float)
     sv = s2 / neff.replace(0, np.nan)
     shrink = (h["tau2"] / (h["tau2"] + sv)).fillna(0.0)
+    if kbar is not None:
+        shrink = shrink * kbar.reindex(shrink.index).fillna(1.0)
     post = mu + shrink * (x.fillna(mu) - mu)
     postvar = 1 / (1 / h["tau2"] + 1 / sv.fillna(np.inf))
     return post, postvar
@@ -116,7 +130,7 @@ def eb_apply(h: dict, x: pd.Series, neff: pd.Series, grp: pd.Series) -> tuple[pd
 
 def fit_hyper(st: pd.DataFrame, grp: pd.Series, sig2: dict, min_neff: float) -> dict:
     hyp = {s: eb_fit(st[f"x_{s}"], st[f"neff_{s}"], grp, sig2, min_neff) for s in "PNA"}
-    B, Bvar = eb_apply(hyp["N"], st.x_N, st.neff_N, grp)
+    B, Bvar = eb_apply(hyp["N"], st.x_N, st.neff_N, grp, st.kbar_N)
     r = st.x_P - B
     s2 = grp.map(lambda g: sig2.get(g, sig2["_all"])).astype(float)
     sv_r = s2 / st.neff_P.replace(0, np.nan) + Bvar
@@ -129,9 +143,9 @@ def fit_hyper(st: pd.DataFrame, grp: pd.Series, sig2: dict, min_neff: float) -> 
 
 def features(st: pd.DataFrame, grp: pd.Series, hyp: dict) -> pd.DataFrame:
     f = pd.DataFrame(index=st.index)
-    f["post_P"], f["var_P"] = eb_apply(hyp["P"], st.x_P, st.neff_P, grp)
-    f["post_A"], f["var_A"] = eb_apply(hyp["A"], st.x_A, st.neff_A, grp)
-    f["B"], f["var_B"] = eb_apply(hyp["N"], st.x_N, st.neff_N, grp)
+    f["post_P"], f["var_P"] = eb_apply(hyp["P"], st.x_P, st.neff_P, grp, st.kbar_P)
+    f["post_A"], f["var_A"] = eb_apply(hyp["A"], st.x_A, st.neff_A, grp, st.kbar_A)
+    f["B"], f["var_B"] = eb_apply(hyp["N"], st.x_N, st.neff_N, grp, st.kbar_N)
     s2 = grp.map(lambda g: hyp["P"]["sig2"].get(g, hyp["P"]["sig2"]["_all"])).astype(float)
     r = st.x_P - f.B
     sv_r = s2 / st.neff_P.replace(0, np.nan) + f.var_B
@@ -315,9 +329,10 @@ def run(cfg: dict | None = None):
             "rank_p05": R.quantile(.05, axis=1), "rank_p95": R.quantile(.95, axis=1),
             "p_top10": (R <= 10).mean(axis=1),
             "pct_P_balls_ipl": tbl.pct_P_balls_ipl.reindex(pool),
-            "M1_rank": fit["pred"].M1.reindex(pool).rank(ascending=False, method="min"),
-            "M2_rank": fit["pred"].M2.reindex(pool).rank(ascending=False, method="min"),
-            "M3_rank": fit["pred"].M3.reindex(pool).rank(ascending=False, method="min"),
+            "M1_rank": f.post_P.reindex(pool).rank(ascending=False, method="min"),
+            "M2_rank": f.post_A.reindex(pool).rank(ascending=False, method="min"),
+            "M3_rank": (f.B + f.adv).reindex(pool).rank(ascending=False, method="min"),
+            "kbar_tier_credibility": st.kbar_A.reindex(pool),
         }).sort_values("rank")
         out_t.to_csv(out / "rankings" / f"{'batting' if kind == 'bat' else 'bowling'}_ratings.csv")
         (out / "rankings" / f"{'batting' if kind == 'bat' else 'bowling'}_top25.md").write_text(
